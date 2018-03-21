@@ -251,8 +251,8 @@ def training_loop(model, loss, optimizer, training_iter, dev_iter, train_eval_it
 
         if step % 100 == 0:
             legend.append([evaluate(model, train_eval_iter),evaluate(model, dev_iter)])
-            print( "Step %i; Loss %f; Train acc: %f; Dev acc %f" 
-                %(step, lossy.data[0], evaluate(model, train_eval_iter), evaluate(model, dev_iter)))
+            #print( "Step %i; Loss %f; Train acc: %f; Dev acc %f" 
+            #    %(step, lossy.data[0], evaluate(model, train_eval_iter), evaluate(model, dev_iter)))
 
         step += 1
     return legend
@@ -316,30 +316,30 @@ legendCBOW = collections.defaultdict(dict)
 print("iterating hidden_dim CBOW")
 for h in range(5,50,5):#20
     hyperTuningCBOW(h,embedding_dim,learning_rate,dropout_prob,legendCBOW,'hidden_dim',h)
-    pp.pprint(legendCBOW)
+    #pp.pprint(legendCBOW)
 print("iterating embedding_dim CBOW")
 for e in range(50,500,10):#300
     hyperTuningCBOW(hidden_dim,e,learning_rate,dropout_prob,legendCBOW,'embedding_dim',e)
-    pp.pprint(legendCBOW)
+    #pp.pprint(legendCBOW)
 print("iterating learning_rate CBOW")
 for l in np.linspace(0.001, 0.1, num=100, endpoint=True):
     hyperTuningCBOW(hidden_dim,embedding_dim,l,dropout_prob,legendCBOW,'learning_rate',l)
-    pp.pprint(legendCBOW)
+    #pp.pprint(legendCBOW)
 print("iterating dropout_prob CBOW")
 for d in np.linspace(0.1, 0.9, num=9, endpoint=True):
     hyperTuningCBOW(hidden_dim,embedding_dim,learning_rate,d,legendCBOW,'dropout_prob',d)
-    pp.pprint(legendCBOW)
+    #pp.pprint(legendCBOW)
 
 
 # In[ ]:
 
-file_Name = "CBOW_Adawg"
+file_Name = "CBOW_P1"
 # open the file for writing
 fileObject = open(file_Name,'wb') 
 
 # this writes the object a to the
 # file named 'testfile'
-pickle.dump(legendCBOW,fileObject)   
+pickle.dump(legendCBOW,fileObject,protocol=2)   
 
 # here we close the fileObject
 fileObject.close()
@@ -435,32 +435,32 @@ legendCNN = collections.defaultdict(dict)
 print("iterating window_size CNN")
 for w in range(1,11,1):#range(1,11):
     hyperTuningCNN(w,n_filters,embedding_dim,learning_rate,dropout_prob,legendCNN,'window_size',w)
-    pp.pprint(legendCNN)
+    #pp.pprint(legendCNN)
 print("iterating n_filters CNN")
 for n in range(5,50,5):#range(10,21):
     hyperTuningCNN(window_size,n,embedding_dim,learning_rate,dropout_prob,legendCNN,'n_filters',n)
-    pp.pprint(legendCNN)
+    #pp.pprint(legendCNN)
 print("iterating embedding_dim CNN")
 for e in range(50,500,10):#range(50,300,50):
     hyperTuningCNN(window_size,n_filters,e,learning_rate,dropout_prob,legendCNN,'embedding_dim',e)
-    pp.pprint(legendCNN)
+    #pp.pprint(legendCNN)
 print("iterating learning_rate CNN")
 for l in np.linspace(0.001, 0.1, num=100, endpoint=True):
     hyperTuningCNN(window_size,n_filters,embedding_dim,l,dropout_prob,legendCNN,'learning_rate',l)
-    pp.pprint(legendCNN)
+    #pp.pprint(legendCNN)
 print("iterating dropout_prob CNN")
 for d in np.linspace(0.1, 0.9, num=9, endpoint=True):
     hyperTuningCNN(window_size,n_filters,embedding_dim,learning_rate,d,legendCNN,'dropout_prob',d)
-    pp.pprint(legendCNN)
+    #pp.pprint(legendCNN)
 
 
-file_Name = "CNN_Adawg"
+file_Name = "CNN_P1"
 # open the file for writing
 fileObject = open(file_Name,'wb') 
 
 # this writes the object a to the
 # file named 'testfile'
-pickle.dump(legendCNN,fileObject)
+pickle.dump(legendCNN,fileObject,protocol=2)
 
 # here we close the fileObject
 fileObject.close()

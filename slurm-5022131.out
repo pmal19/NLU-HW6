@@ -1,0 +1,9 @@
+iterating hidden_dim CBOW
+iterating embedding_dim CBOW
+iterating learning_rate CBOW
+iterating dropout_prob CBOW
+iterating window_size CNN
+iterating n_filters CNN
+iterating embedding_dim CNN
+iterating learning_rate CNN
+iterating dropout_prob CNN
