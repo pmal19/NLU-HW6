@@ -237,8 +237,8 @@ def training_loop(model, loss, optimizer, training_iter, dev_iter, train_eval_it
     for i in range(num_train_steps):
         model.train()
         vectors, labels = get_batch(next(training_iter))
-        vectors = Variable(torch.stack(vectors).squeeze())
-        labels = Variable(torch.stack(labels).squeeze())
+        vectors = Variable(torch.stack(vectors).squeeze().cuda())
+        labels = Variable(torch.stack(labels).squeeze().cuda())
 
         model.zero_grad()
         output = model(vectors)
@@ -293,7 +293,7 @@ dropout_prob = 0.0
 def hyperTuningCBOW(hidden_dim,embedding_dim,learning_rate,dropout_prob,legendCBOW,iteratingParam,param):
     
     model = MLPClassifier(input_size, embedding_dim, hidden_dim, num_labels, dropout_prob)
-
+    model = model.cuda()
     # Loss and Optimizer
     loss = nn.CrossEntropyLoss()  
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
@@ -412,7 +412,7 @@ dropout_prob = 0.0
 def hyperTuningCNN(window_size,n_filters,embedding_dim,learning_rate,dropout_prob,legendCNN,iteratingParam,param):
 
     cnn_model = TextCNN(input_size, embedding_dim, window_size, n_filters, num_labels, dropout_prob)
-
+    cnn_model = cnn_model.cuda()
     # Loss and Optimizer
     loss = nn.CrossEntropyLoss()  
     optimizer = torch.optim.Adam(cnn_model.parameters(), lr=learning_rate)

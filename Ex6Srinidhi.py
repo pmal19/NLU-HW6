@@ -15,6 +15,7 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 import torch.nn.functional as F
+import torch.backends.cudnn as cudnn
 
 import re
 import random
@@ -177,8 +178,8 @@ def evaluate(model, data_iter):
     total = 0
     for i in range(len(data_iter)):
         vectors, labels = get_batch(data_iter[i])
-        vectors = Variable(torch.stack(vectors).squeeze())
-        labels = torch.stack(labels).squeeze()
+        vectors = Variable((torch.stack(vectors).squeeze()).cuda())
+        labels = (torch.stack(labels).squeeze()).cuda()
         output = model(vectors)
         _, predicted = torch.max(output.data, 1)
         total += labels.size(0)
@@ -230,6 +231,7 @@ class MLPClassifier(nn.Module): # inheriting from nn.Module!
 # We now define our training loop,
 
 # In[7]:
+cudnn.benchmark = True
 
 def training_loop(model, loss, optimizer, training_iter, dev_iter, train_eval_iter):
     step = 0
@@ -237,8 +239,8 @@ def training_loop(model, loss, optimizer, training_iter, dev_iter, train_eval_it
     for i in range(num_train_steps):
         model.train()
         vectors, labels = get_batch(next(training_iter))
-        vectors = Variable(torch.stack(vectors).squeeze())
-        labels = Variable(torch.stack(labels).squeeze())
+        vectors = Variable((torch.stack(vectors).squeeze()).cuda())
+        labels = Variable((torch.stack(labels).squeeze()).cuda())
 
         model.zero_grad()
         output = model(vectors)
@@ -264,7 +266,7 @@ def training_loop(model, loss, optimizer, training_iter, dev_iter, train_eval_it
 input_size = vocab_size
 num_labels = 2
 batch_size = 32
-num_train_steps = 200#1000
+num_train_steps = 1000
 
 
 # Modify these hyperparameters to try to achieve approximately 80% dev accuracy.
@@ -275,11 +277,11 @@ num_train_steps = 200#1000
 # embedding_dim = 300
 # learning_rate = 0.001
 # dropout_prob = 0.5
-
 hidden_dim = 20
 embedding_dim = 100
 learning_rate = 0.1
 dropout_prob = 0.0
+
 
 # In[ ]:
 
@@ -290,19 +292,21 @@ dropout_prob = 0.0
 
 # In[11]:
 
-def hyperTuningCBOW(hidden_dim,embedding_dim,learning_rate,dropout_prob,legendCBOW,iteratingParam,param):
+
+
+def hyperTuningCBOW(hidden_dim,embedding_dim,learning_rate,dropout_prob,legendCBOW,iteratingParam,Param):
     
     model = MLPClassifier(input_size, embedding_dim, hidden_dim, num_labels, dropout_prob)
-
+    model.cuda()
     # Loss and Optimizer
-    loss = nn.CrossEntropyLoss()  
+    loss = nn.CrossEntropyLoss().cuda()  
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     # Train the model
     training_iter = data_iter(training_set, batch_size)
     train_eval_iter = eval_iter(training_set[0:500], batch_size)
     dev_iter = eval_iter(dev_set[0:500], batch_size)
-    legendCBOW[iteratingParam][param] = training_loop(model, loss, optimizer, training_iter, dev_iter, train_eval_iter)
+    legendCBOW[iteratingParam][Param] = training_loop(model, loss, optimizer, training_iter, dev_iter, train_eval_iter)
 
 
 # In[137]:
@@ -407,36 +411,37 @@ embedding_dim = 100
 learning_rate = 0.1
 dropout_prob = 0.0
 
+
 # Lets build and train this model:
 
-def hyperTuningCNN(window_size,n_filters,embedding_dim,learning_rate,dropout_prob,legendCNN,iteratingParam,param):
+def hyperTuningCNN(window_size,n_filters,embedding_dim,learning_rate,dropout_prob,legendCNN,iteratingParam,Param):
 
     cnn_model = TextCNN(input_size, embedding_dim, window_size, n_filters, num_labels, dropout_prob)
-
+    cnn_model.cuda()
     # Loss and Optimizer
-    loss = nn.CrossEntropyLoss()  
+    loss = nn.CrossEntropyLoss().cuda()  
     optimizer = torch.optim.Adam(cnn_model.parameters(), lr=learning_rate)
 
     # Train the model
     training_iter = data_iter(training_set, batch_size)
     train_eval_iter = eval_iter(training_set[0:500], batch_size)
     dev_iter = eval_iter(dev_set[0:500], batch_size)
-    legendCNN[iteratingParam][param] = training_loop(cnn_model, loss, optimizer, training_iter, dev_iter, train_eval_iter)
+    legendCNN[iteratingParam][Param] = training_loop(cnn_model, loss, optimizer, training_iter, dev_iter, train_eval_iter)
 
 
 # In[ ]:
 
 legendCNN = collections.defaultdict(dict)
 print("iterating window_size CNN")
-for w in range(1,11):
+for w in range(1,11,1):#range(1,11):
     hyperTuningCNN(w,n_filters,embedding_dim,learning_rate,dropout_prob,legendCNN,'window_size',w)
     pp.pprint(legendCNN)
 print("iterating n_filters CNN")
-for n in range(5,50,5):
+for n in range(5,50,5):#range(10,21):
     hyperTuningCNN(window_size,n,embedding_dim,learning_rate,dropout_prob,legendCNN,'n_filters',n)
     pp.pprint(legendCNN)
 print("iterating embedding_dim CNN")
-for e in range(50,500,10):
+for e in range(50,500,10):#range(50,300,50):
     hyperTuningCNN(window_size,n_filters,e,learning_rate,dropout_prob,legendCNN,'embedding_dim',e)
     pp.pprint(legendCNN)
 print("iterating learning_rate CNN")
