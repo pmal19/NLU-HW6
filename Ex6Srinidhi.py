@@ -333,7 +333,7 @@ for d in np.linspace(0.1, 0.9, num=9, endpoint=True):
 
 # In[ ]:
 
-file_Name = "CBOW"
+file_Name = "CBOW_Adawg"
 # open the file for writing
 fileObject = open(file_Name,'wb') 
 
@@ -454,7 +454,7 @@ for d in np.linspace(0.1, 0.9, num=9, endpoint=True):
     pp.pprint(legendCNN)
 
 
-file_Name = "CNN"
+file_Name = "CNN_Adawg"
 # open the file for writing
 fileObject = open(file_Name,'wb') 
 
